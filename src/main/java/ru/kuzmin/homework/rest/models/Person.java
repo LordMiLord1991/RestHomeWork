@@ -1,6 +1,7 @@
 package ru.kuzmin.homework.rest.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
@@ -9,9 +10,13 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "person")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,15 +45,21 @@ public class Person {
     private Date statusChangeAt;
 
     @OneToOne(mappedBy = "owner")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    @JsonIgnore
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Image image;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "role")
-    private String role;
+
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(
+            name = "authority_person",
+            joinColumns = @JoinColumn(name = "authority_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id")
+    )
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    private List<Authority> roles;
 
     public Person() {
     }
@@ -57,6 +68,14 @@ public class Person {
         this.userName = userName;
         this.yearOfBirth = yearOfBirth;
         this.email = email;
+    }
+
+    public List<Authority> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Authority> roles) {
+        this.roles = roles;
     }
 
     public String getStatus() {
@@ -121,14 +140,6 @@ public class Person {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     @Override

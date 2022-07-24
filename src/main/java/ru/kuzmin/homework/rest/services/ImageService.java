@@ -13,7 +13,6 @@ import ru.kuzmin.homework.rest.repositories.PeopleRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.ServletContext;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

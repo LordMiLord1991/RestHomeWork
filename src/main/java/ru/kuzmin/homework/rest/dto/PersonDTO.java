@@ -1,10 +1,14 @@
 package ru.kuzmin.homework.rest.dto;
 
-import javax.persistence.Column;
+import org.hibernate.annotations.Cascade;
+import ru.kuzmin.homework.rest.models.Authority;
+
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 public class PersonDTO {
 
@@ -21,6 +25,15 @@ public class PersonDTO {
 
     @Column(name = "status")
     private String status;
+
+    @ManyToMany(fetch= FetchType.EAGER)
+    @JoinTable(
+            name = "authority_person",
+            joinColumns = @JoinColumn(name = "authority_id"),
+            inverseJoinColumns = @JoinColumn(name = "person_id")
+    )
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    private List<Authority> roles;
 
     public String getUserName() {
         return userName;
@@ -54,4 +67,11 @@ public class PersonDTO {
         this.status = status;
     }
 
+    public List<Authority> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Authority> roles) {
+        this.roles = roles;
+    }
 }

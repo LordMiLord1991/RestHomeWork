@@ -4,28 +4,29 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kuzmin.homework.rest.models.Authority;
 import ru.kuzmin.homework.rest.models.Person;
+import ru.kuzmin.homework.rest.repositories.AuthoritiesRepository;
 import ru.kuzmin.homework.rest.repositories.PeopleRepository;
 import ru.kuzmin.homework.rest.util.PersonNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
 public class PeopleService {
 
     private final PeopleRepository peopleRepository;
+    private final AuthoritiesRepository authoritiesRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public PeopleService(PeopleRepository peopleRepository) {
+    public PeopleService(PeopleRepository peopleRepository, AuthoritiesRepository authoritiesRepository) {
         this.peopleRepository = peopleRepository;
+        this.authoritiesRepository = authoritiesRepository;
     }
 
     public List<Person> findAll() {
@@ -51,11 +52,12 @@ public class PeopleService {
     }
 
     @Transactional
-    public int save(Person person) {
+    public int saveAndReturnId(Person person) {
         person.setStatus("offline");
         person.setStatusChangeAt(new Date());
-        person.setRole("ROLE_USER");
-
+        Optional<Authority> authority = authoritiesRepository.findById(1);
+        System.out.println(authority.get());
+        person.setRoles(new ArrayList<>(Collections.singleton(authority.get())));
         peopleRepository.save(person);
 
         return person.getId();
@@ -68,7 +70,7 @@ public class PeopleService {
             throw new PersonNotFoundException();
         }
         updatePerson.setId(id);
-        updatePerson.setRole(person.get().getRole());
+        updatePerson.setRoles(person.get().getRoles());
         updatePerson.setStatus(person.get().getStatus());
 
         peopleRepository.save(updatePerson);
@@ -77,6 +79,8 @@ public class PeopleService {
     @Transactional
     public List<String> changeStatus(int id) {
         Optional<Person> person = peopleRepository.findById(id);
+        System.out.println(person.get().getUserName());
+        System.out.println(person.get().getId());
 
         if (person.isEmpty())
             throw new PersonNotFoundException();

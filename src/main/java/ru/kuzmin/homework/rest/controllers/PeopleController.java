@@ -19,9 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Neil Alishev
- */
+
 @RestController
 @RequestMapping("/people")
 public class PeopleController {
@@ -58,7 +56,7 @@ public class PeopleController {
 
         checkAndThrowException(bindingResult);
 
-        int id = peopleService.save(convertToPerson(personDTO));
+        int id = peopleService.saveAndReturnId(convertToPerson(personDTO));
         return ResponseEntity.ok("Id is: " + id);
     }
 

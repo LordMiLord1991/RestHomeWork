@@ -3,10 +3,10 @@ package ru.kuzmin.homework.rest.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.kuzmin.homework.rest.models.Authority;
 import ru.kuzmin.homework.rest.models.Person;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 public class PersonDetails implements UserDetails {
 
@@ -18,7 +18,11 @@ public class PersonDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(person.getRole()));
+        List<SimpleGrantedAuthority> sga = new ArrayList<>();
+        for (Authority authority : person.getRoles()) {
+            sga.add(new SimpleGrantedAuthority(authority.getRole()));
+        }
+        return sga;
     }
 
     @Override
